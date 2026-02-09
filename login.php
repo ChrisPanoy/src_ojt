@@ -1,6 +1,7 @@
 ﻿<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 include 'includes/db.php';
-session_start();
 
 // Admin login now uses the employees table from src_db
 // Only role 'MIS Admin' (and optionally other non-faculty roles) can log in here.

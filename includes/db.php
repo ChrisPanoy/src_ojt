@@ -4,6 +4,22 @@ $user = "root";
 $pass = "";
 $db = "src_db";
 
+// Robust session start with path validation
+if (session_status() === PHP_SESSION_NONE) {
+    // Check if the current session save path exists and is writable
+    $current_path = session_save_path();
+    if (empty($current_path) || !is_dir($current_path) || !is_writable($current_path)) {
+        // Fallback to system temp directory if configured path is broken
+        $fallback_path = sys_get_temp_dir();
+        if (is_dir($fallback_path) && is_writable($fallback_path)) {
+            session_save_path($fallback_path);
+        }
+    }
+    
+    // Attempt to start session with error suppression for environments that still fail
+    @session_start();
+}
+
 // Enable mysqli exception mode for better error handling
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -13,9 +29,6 @@ try {
 
     // Auto-load Active Academic Year and Semester into Session
     if (session_status() !== PHP_SESSION_NONE) {
-        // We only fetch if not already set, to allow manual overrides if needed,
-        // or we can refresh every time. Let's refresh every time to ensure consistency.
-        
         $resAy = $conn->query("SELECT ay_id, ay_name FROM academic_years WHERE status = 'Active' LIMIT 1");
         if ($rowAy = $resAy->fetch_assoc()) {
             $_SESSION['active_ay_id'] = (int)$rowAy['ay_id'];

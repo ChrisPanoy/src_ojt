@@ -1,5 +1,4 @@
 <?php
-session_start();
 include '../includes/db.php';
 
 // NOTE: allow logging in another teacher even if one is already active.
